@@ -1,6 +1,7 @@
 Integrantes:
-1- Mateus Passos Amaral
-2- Janderson Franco da Graça
-3- Lucas Gomes Rodrigues
-4- Thiago Nascimento
+<br/>
+1- Mateus Passos Amaral <br/>
+2- Janderson Franco da Graça <br/>
+3- Lucas Gomes Rodrigues <br/>
+4- Thiago Nascimento <br/>
 5- Daniel Viana
