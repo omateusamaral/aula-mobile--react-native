@@ -1,7 +1,7 @@
 import {
   createRole,
   deleteRole,
-  editUser,
+  editRole,
   listRoles,
   Role,
 } from "@/services/roles";
@@ -50,7 +50,7 @@ export default function Roles() {
 
   const handleEditRole = async (newRole: Role) => {
     if (!selectedRole) return;
-    await editUser(selectedRole.id, newRole);
+    await editRole(selectedRole.id, newRole);
     Alert.alert("Sucesso", "Role editada com sucesso!");
     setOpenEditRoleModal(false);
     setSelectedRole(null);

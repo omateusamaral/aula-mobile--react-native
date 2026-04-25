@@ -1,7 +1,7 @@
-import { login } from "@/services/auth";
-import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "@/contexts/auth-context";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -31,6 +32,8 @@ const styles = StyleSheet.create({
     backgroundColor: "blue",
     padding: 10,
     borderRadius: 5,
+    minWidth: 300,
+    alignItems: "center",
   },
   buttonText: {
     color: "white",
@@ -39,27 +42,30 @@ const styles = StyleSheet.create({
 });
 
 export default function LoginPage() {
-  const navigation = useNavigation();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
       if (!email || !password) {
-        Alert.alert("Error", "Please fill in all fields");
+        Alert.alert("Erro", "Por favor, preencha todos os campos");
         return;
       }
-      await login(email, password);
-      Alert.alert("Success", "Login successful");
 
-      // Navigate to the home screen or perform other actions after successful login
-      navigation.navigate("home" as never);
+      setIsLoading(true);
+      await login(email, password);
+      Alert.alert("Sucesso", "Login realizado com sucesso!");
+      // A navegação é automática via contexto
     } catch (error) {
       Alert.alert(
-        "Error",
-        "Login failed. Please check your credentials and try again.",
+        "Erro",
+        "Falha no login. Verifique suas credenciais e tente novamente.",
       );
       console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,19 +74,29 @@ export default function LoginPage() {
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder="Username"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        editable={!isLoading}
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Senha"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!isLoading}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleLogin}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
     </View>
   );

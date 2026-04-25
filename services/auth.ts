@@ -30,7 +30,12 @@ export async function logout(): Promise<void> {
     try {
         await AsyncStorage.removeItem("user");
     } catch (error) {
-        console.error("Error removing item from AsyncStorage:", error);
+            throw new Error({
+                message: "User not signed in",
+                response:{
+                    status: 401
+                }
+            } as any);
     }
 }
 export async function setSigned(user: User): Promise<void> {

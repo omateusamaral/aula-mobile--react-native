@@ -23,9 +23,8 @@ export interface User {
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        await logout();
+    } catch (error:any) {
+      Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
@@ -43,10 +42,8 @@ export async function createUser(user: Omit<User, "token" | "id">): Promise<User
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error creating user:", error);
-        await logout(); // Clear user data on error
-        Alert.alert("Error", "Failed to create user. Please try again.");
+    } catch (error:any) {
+        Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
@@ -63,10 +60,8 @@ export async function deleteUser(userId: number): Promise<void> {
                 'Authorization': `Bearer ${signed.token}`,
             }
         });
-    } catch (error) {
-        console.error("Error deleting user:", error);
-        await logout(); // Clear user data on error
-        Alert.alert("Error", "Failed to delete user. Please try again.");
+    } catch (error:any) {
+        Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
@@ -90,10 +85,8 @@ export async function editUser(userId: number, user: Omit<User, "token">): Promi
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error editing user:", error);
-        await logout();
-        Alert.alert("Error", "Failed to edit user. Please try again.");
+    } catch (error:any) {
+        Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }

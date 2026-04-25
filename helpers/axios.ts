@@ -19,7 +19,7 @@ export function setOnUnauthorizedCallback(callback: () => void) {
 instance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status !== 200) {
+        if (error.response.data.statusCode === 401) {
             // Importar aqui para evitar circular dependency
             const { logout } = await import('@/services/auth');
             await logout();

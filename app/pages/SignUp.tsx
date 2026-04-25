@@ -49,7 +49,8 @@ export default function SignUp() {
       navigation.navigate("home" as never);
     } catch (error: any) {
       Alert.alert("Erro", "Falha ao criar a conta. Tente novamente.");
-      if (error.response.status === 401) {
+      console.log(`mateus`, error);
+      if (error?.response?.status === 401) {
         await logout();
         navigation.navigate("login" as never);
       }

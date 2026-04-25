@@ -1,4 +1,5 @@
 import instance from "@/helpers/axios";
+import { Alert } from "react-native";
 import { getSigned, logout } from "./auth";
 
 export interface Role {
@@ -19,9 +20,8 @@ export async function listRoles(): Promise<Role[]>{
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error fetching roles:", error);
-        await logout();
+    } catch (error:any) {
+        Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
@@ -38,9 +38,8 @@ export async function deleteRole(id: number): Promise<void> {
                 'Authorization': `Bearer ${signed.token}`,
             }
         });
-    } catch (error) {
-        console.error("Error deleting role:", error);
-        await logout();
+    } catch (error:any) {
+       Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
@@ -58,14 +57,13 @@ export async function createRole(role: Omit<Role, "id">): Promise<Role> {
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error creating role:", error);
-        await logout();
+    } catch (error:any) {
+        Alert.alert("Error", error.response.data.message);
         throw error;
     }
 }
 
-export async function editUser(id: number, role: Omit<Role, "id">): Promise<Role> {
+export async function editRole(id: number, role: Omit<Role, "id">): Promise<Role> {
     try {
         const signed = await getSigned();
         if (!signed) {
@@ -78,9 +76,9 @@ export async function editUser(id: number, role: Omit<Role, "id">): Promise<Role
             }
         });
         return response.data;
-    } catch (error) {
-        console.error("Error editing role:", error);
-        await logout();
+    } catch (error:any) {
+     Alert.alert("Error", error.response.data.message);
+     
         throw error;
     }
 }
