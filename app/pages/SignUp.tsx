@@ -1,41 +1,43 @@
 import { logout } from "@/services/auth";
 import { listRoles, Role } from "@/services/roles";
-import { createUser } from "@/services/user";
-import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import { createUser, User } from "@/services/user";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Alert,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export default function SignUp() {
   const navigation = useNavigation();
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [user, setUser] = useState<Omit<User, "id" | "token" | "roles">>({
+    name: "",
+    username: "",
+    password: "",
+  });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
-  const [roleSelected, setRoleSelected] = useState<Role | null>(null);
+  const [rolesSelected, setRolesSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleSignUp = async () => {
-    if (!name || !username || !password || !confirmPassword) {
+    if (!user.name || !user.username || !user.password || !confirmPassword) {
       Alert.alert("Erro", "Por favor preecha todos os campos");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (user.password !== confirmPassword) {
       Alert.alert("Erro", "As senhas não correspondem");
       return;
     }
 
-    if (password.length < 6) {
+    if (user.password.length < 6) {
       Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres");
       return;
     }
@@ -44,12 +46,19 @@ export default function SignUp() {
 
     try {
       await createUser({
-        name,
-        password,
-        roles: roleSelected ? [roleSelected.name] : [],
-        username,
+        name: user.name,
+        password: user.password,
+        roles: rolesSelected,
+        username: user.username,
       });
       Alert.alert("Sucesso", "Conta criada com sucesso!");
+      setUser({
+        name: "",
+        username: "",
+        password: "",
+      });
+      setConfirmPassword("");
+      setRolesSelected([]);
       navigation.navigate("home" as never);
     } catch (error: any) {
       Alert.alert("Erro", "Falha ao criar a conta. Tente novamente.");
@@ -62,16 +71,29 @@ export default function SignUp() {
     }
   };
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      const response = await listRoles();
-      setRoles(response);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRoles = async () => {
+        const response = await listRoles();
+        setRoles(response);
+      };
 
-    fetchRoles();
-  }, []);
+      fetchRoles();
+    }, []),
+  );
+
+  const dropdownItems = useMemo(
+    () =>
+      roles && Array.isArray(roles)
+        ? roles.map((role) => ({
+            label: role.name,
+            value: role.name,
+          }))
+        : [],
+    [roles],
+  );
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Criar Conta</Text>
 
@@ -80,8 +102,8 @@ export default function SignUp() {
           <TextInput
             style={styles.input}
             placeholder="Ex: João Silva"
-            value={name}
-            onChangeText={setName}
+            value={user.name}
+            onChangeText={(text) => setUser({ ...user, name: text })}
             editable={!loading}
             placeholderTextColor="#999"
           />
@@ -90,8 +112,8 @@ export default function SignUp() {
           <TextInput
             style={styles.input}
             placeholder="seu nome de usuário"
-            value={username}
-            onChangeText={setUsername}
+            value={user.username}
+            onChangeText={(text) => setUser({ ...user, username: text })}
             keyboardType="default"
             editable={!loading}
             placeholderTextColor="#999"
@@ -101,8 +123,8 @@ export default function SignUp() {
           <TextInput
             style={styles.input}
             placeholder="Mínimo 6 caracteres"
-            value={password}
-            onChangeText={setPassword}
+            value={user.password}
+            onChangeText={(text) => setUser({ ...user, password: text })}
             secureTextEntry
             editable={!loading}
             placeholderTextColor="#999"
@@ -125,28 +147,21 @@ export default function SignUp() {
               borderColor: "#ddd",
               borderRadius: 8,
               width: "100%",
+              zIndex: 1000,
             }}
           >
-            <Picker
-              selectedValue={
-                roles.find((r) => r.name === roleSelected?.name)?.name || ""
-              }
-              onValueChange={(itemValue) =>
-                setRoleSelected(roles.find((r) => r.name === itemValue) || null)
-              }
-              style={{
-                width: "100%",
-              }}
-            >
-              <Picker.Item label="Selecione uma função" value="" />
-              {roles.map((role) => (
-                <Picker.Item
-                  key={role.id}
-                  label={role.name}
-                  value={role.name}
-                />
-              ))}
-            </Picker>
+            <DropDownPicker
+              multiple={true}
+              min={0}
+              max={5}
+              open={open}
+              value={rolesSelected}
+              items={dropdownItems}
+              setOpen={setOpen}
+              setValue={setRolesSelected}
+              setItems={() => {}}
+              mode="BADGE"
+            />
           </View>
         </View>
 
@@ -158,7 +173,7 @@ export default function SignUp() {
           <Text style={styles.buttonText}>criar conta</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

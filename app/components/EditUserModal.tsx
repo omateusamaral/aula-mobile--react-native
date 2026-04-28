@@ -1,8 +1,8 @@
 import { Role } from "@/services/roles";
 import { User } from "@/services/user";
-import { Picker } from "@react-native-picker/picker";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 export default function EditUserModal({
   visible,
   onClose,
@@ -17,12 +17,24 @@ export default function EditUserModal({
   roles: Role[];
 }) {
   const [editedUser, setEditedUser] = React.useState<User | null>(user);
+  const [rolesSelected, setRolesSelected] = React.useState<string[]>([]);
+  const [open, setOpen] = React.useState(false);
 
+  const dropdownItems = useMemo(
+    () =>
+      roles && Array.isArray(roles)
+        ? roles.map((role) => ({
+            label: role.name,
+            value: role.name,
+          }))
+        : [],
+    [roles],
+  );
   useEffect(() => {
     setEditedUser(user);
+    setRolesSelected(user?.roles || []);
   }, [user]);
 
-  useEffect(() => {}, []);
   if (!visible || !user || !editedUser) return null;
 
   return (
@@ -59,22 +71,21 @@ export default function EditUserModal({
             borderColor: "#ddd",
             borderRadius: 8,
             width: "100%",
+            zIndex: 1000,
           }}
         >
-          <Picker
-            selectedValue={editedUser?.roles[0] || ""}
-            onValueChange={(itemValue) =>
-              setEditedUser({ ...editedUser, roles: [itemValue] })
-            }
-            style={{
-              width: "100%",
-            }}
-          >
-            <Picker.Item label="Selecione uma função" value="" />
-            {roles.map((role) => (
-              <Picker.Item key={role.id} label={role.name} value={role.name} />
-            ))}
-          </Picker>
+          <DropDownPicker
+            multiple={true}
+            min={0}
+            max={5}
+            open={open}
+            value={rolesSelected}
+            items={dropdownItems}
+            setOpen={setOpen}
+            setValue={setRolesSelected}
+            setItems={() => {}}
+            mode="BADGE"
+          />
         </View>
         <View
           style={{
@@ -83,7 +94,16 @@ export default function EditUserModal({
             width: "100%",
           }}
         >
-          <Button title="Salvar" onPress={() => onEdit(editedUser)} />
+          <Button
+            title="Salvar"
+            disabled={!editedUser || !rolesSelected.length}
+            onPress={() =>
+              onEdit({
+                ...editedUser,
+                roles: rolesSelected,
+              })
+            }
+          />
           <Button title="Cancelar" onPress={onClose} color="red" />
         </View>
       </View>
