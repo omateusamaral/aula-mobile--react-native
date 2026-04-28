@@ -2,7 +2,7 @@ import { Role } from "@/services/roles";
 import React from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-export function CreateRoleModal({
+export default function CreateRoleModal({
   visible,
   onClose,
   onCreate,

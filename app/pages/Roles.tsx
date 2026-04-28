@@ -6,18 +6,10 @@ import {
   Role,
 } from "@/services/roles";
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { CreateRoleModal } from "../components/CreateRoleModal";
-import { EditRoleModal } from "../components/EditRoleModal";
+import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import CreateRoleModal from "../components/CreateRoleModal";
+import EditRoleModal from "../components/EditRoleModal";
 
 export default function Roles() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -85,7 +77,7 @@ export default function Roles() {
     setOpenEditRoleModal(true);
   };
   const renderRoleItem = ({ item }: { item: Role }) => (
-    <TouchableOpacity style={styles.roleItem}>
+    <View style={styles.roleItem}>
       <Text style={styles.avatar}>{item.name.charAt(0).toUpperCase()}</Text>
       <View style={styles.roleInfo}>
         <Text style={styles.roleName}>{item.name}</Text>
@@ -93,20 +85,24 @@ export default function Roles() {
       </View>
       <Button
         title="Deletar"
+        color="#FF3B30"
         disabled={item.id === 1}
         onPress={() => handleDeleteRole(item.id)}
       />
       <View style={{ width: 8 }} />
       <Button
         title="Editar"
+        color="#007AFF"
         disabled={item.id === 1}
         onPress={() => handleOpenEditRoleModal(item)}
       />
-    </TouchableOpacity>
+    </View>
   );
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Criar Role" onPress={handleOpenCreateRoleModal} />
+      <View style={{ width: 200, alignSelf: "center", marginVertical: 12 }}>
+        <Button title="Criar Role" onPress={handleOpenCreateRoleModal} />
+      </View>
       <CreateRoleModal
         visible={openCreateRoleModal}
         onClose={() => setOpenCreateRoleModal(false)}
@@ -178,6 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#999",
     marginTop: 2,
+    paddingLeft: 3,
   },
   arrow: {
     fontSize: 20,

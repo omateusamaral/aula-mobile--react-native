@@ -1,23 +1,28 @@
+import { Role } from "@/services/roles";
 import { User } from "@/services/user";
+import { Picker } from "@react-native-picker/picker";
 import React, { useEffect } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-
-export function EditUserModal({
+export default function EditUserModal({
   visible,
   onClose,
   onEdit,
   user,
+  roles,
 }: {
   visible: boolean;
   onClose: () => void;
   onEdit: (newUser: User) => Promise<void>;
   user: User | null;
+  roles: Role[];
 }) {
   const [editedUser, setEditedUser] = React.useState<User | null>(user);
 
   useEffect(() => {
     setEditedUser(user);
   }, [user]);
+
+  useEffect(() => {}, []);
   if (!visible || !user || !editedUser) return null;
 
   return (
@@ -47,17 +52,30 @@ export function EditUserModal({
             setEditedUser({ ...editedUser, password: text })
           }
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Roles (comma separated)"
-          value={editedUser?.roles?.join(", ")}
-          onChangeText={(text) =>
-            setEditedUser({
-              ...editedUser,
-              roles: text ? text.split(",").map((role) => role.trim()) : [],
-            })
-          }
-        />
+        <View
+          style={{
+            marginBottom: 12,
+            borderWidth: 1,
+            borderColor: "#ddd",
+            borderRadius: 8,
+            width: "100%",
+          }}
+        >
+          <Picker
+            selectedValue={editedUser?.roles[0] || ""}
+            onValueChange={(itemValue) =>
+              setEditedUser({ ...editedUser, roles: [itemValue] })
+            }
+            style={{
+              width: "100%",
+            }}
+          >
+            <Picker.Item label="Selecione uma função" value="" />
+            {roles.map((role) => (
+              <Picker.Item key={role.id} label={role.name} value={role.name} />
+            ))}
+          </Picker>
+        </View>
         <View
           style={{
             flexDirection: "row",

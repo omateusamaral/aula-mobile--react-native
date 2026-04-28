@@ -1,7 +1,9 @@
 import { logout } from "@/services/auth";
+import { listRoles, Role } from "@/services/roles";
 import { createUser } from "@/services/user";
+import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -18,6 +20,8 @@ export default function SignUp() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [roleSelected, setRoleSelected] = useState<Role | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
@@ -42,14 +46,13 @@ export default function SignUp() {
       await createUser({
         name,
         password,
-        roles: ["user"],
+        roles: roleSelected ? [roleSelected.name] : [],
         username,
       });
       Alert.alert("Sucesso", "Conta criada com sucesso!");
       navigation.navigate("home" as never);
     } catch (error: any) {
       Alert.alert("Erro", "Falha ao criar a conta. Tente novamente.");
-      console.log(`mateus`, error);
       if (error?.response?.status === 401) {
         await logout();
         navigation.navigate("login" as never);
@@ -59,11 +62,18 @@ export default function SignUp() {
     }
   };
 
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const response = await listRoles();
+      setRoles(response);
+    };
+
+    fetchRoles();
+  }, []);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Criar Conta</Text>
-        <Text style={styles.subtitle}>Junte-se a nós hoje!</Text>
 
         <View style={styles.form}>
           <Text style={styles.label}>Nome Completo</Text>
@@ -108,6 +118,36 @@ export default function SignUp() {
             editable={!loading}
             placeholderTextColor="#999"
           />
+          <View
+            style={{
+              marginVertical: 12,
+              borderWidth: 1,
+              borderColor: "#ddd",
+              borderRadius: 8,
+              width: "100%",
+            }}
+          >
+            <Picker
+              selectedValue={
+                roles.find((r) => r.name === roleSelected?.name)?.name || ""
+              }
+              onValueChange={(itemValue) =>
+                setRoleSelected(roles.find((r) => r.name === itemValue) || null)
+              }
+              style={{
+                width: "100%",
+              }}
+            >
+              <Picker.Item label="Selecione uma função" value="" />
+              {roles.map((role) => (
+                <Picker.Item
+                  key={role.id}
+                  label={role.name}
+                  value={role.name}
+                />
+              ))}
+            </Picker>
+          </View>
         </View>
 
         <TouchableOpacity

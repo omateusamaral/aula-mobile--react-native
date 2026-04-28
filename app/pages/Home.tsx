@@ -1,20 +1,16 @@
+import { listRoles, Role } from "@/services/roles";
 import { deleteUser, editUser, listUsers, User } from "@/services/user";
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { EditUserModal } from "../components/EditUserModal";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
+import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import EditUserModal from "../components/EditUserModal";
 
 export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [roles, setRoles] = React.useState<Role[]>([]);
+
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleDeleteUser = (id: number) => {
@@ -31,9 +27,8 @@ export default function Home() {
     ]);
   };
   const handleOpenModalEditUser = async (user: User) => {
-    setOpenEditModal(true);
     setSelectedUser(user);
-    // Aqui você pode abrir um modal para editar o usuário
+    setOpenEditModal(true);
   };
 
   const handleEditUser = async (newUser: User) => {
@@ -45,24 +40,36 @@ export default function Home() {
     const response = await listUsers();
     setUsers(response);
   };
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await listUsers();
-      setUsers(response);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUsers = async () => {
+        const response = await listUsers();
+        setUsers(response);
+      };
 
-    fetchUsers();
-  }, []);
+      const fetchRoles = async () => {
+        const response = await listRoles();
+        setRoles(response);
+      };
+
+      fetchUsers();
+      fetchRoles();
+    }, []),
+  );
 
   const renderUserItem = ({ item }: { item: User }) => (
-    <TouchableOpacity style={styles.userItem}>
+    <View style={styles.userItem}>
       <Text style={styles.avatar}>{item.username.charAt(0).toUpperCase()}</Text>
       <View style={styles.userInfo}>
         <Text style={styles.userName}>{item.name}</Text>
         <Text style={styles.userEmail}>{item.username}</Text>
+        <Text style={styles.userRoles}>
+          Role: {item?.roles?.map((role) => role).join(", ") ?? "Nenhuma"}
+        </Text>
       </View>
       <Button
         title="Deletar"
+        color="#FF3B30"
         disabled={item.id === 1}
         onPress={() => handleDeleteUser(item.id)}
       />
@@ -72,7 +79,7 @@ export default function Home() {
         disabled={item.id === 1}
         onPress={() => handleOpenModalEditUser(item)}
       />
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -82,6 +89,7 @@ export default function Home() {
         onClose={() => setOpenEditModal(false)}
         onEdit={(newUser) => handleEditUser(newUser)}
         user={selectedUser}
+        roles={roles}
       />
       {users.length > 0 ? (
         <FlatList
@@ -109,6 +117,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     minHeight: 500,
+  },
+  userRoles: {
+    fontSize: 13,
+    color: "#999",
+    marginTop: 2,
   },
   userItem: {
     backgroundColor: "#fff",

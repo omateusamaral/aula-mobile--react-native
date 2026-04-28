@@ -2,7 +2,7 @@ import { Role } from "@/services/roles";
 import React, { useEffect } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-export function EditRoleModal({
+export default function EditRoleModal({
   visible,
   onClose,
   onEdit,

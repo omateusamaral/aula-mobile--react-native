@@ -43,20 +43,19 @@ const styles = StyleSheet.create({
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
-      if (!email || !password) {
+      if (!username || !password) {
         Alert.alert("Erro", "Por favor, preencha todos os campos");
         return;
       }
 
       setIsLoading(true);
-      await login(email, password);
-      Alert.alert("Sucesso", "Login realizado com sucesso!");
+      await login(username, password);
       // A navegação é automática via contexto
     } catch (error) {
       Alert.alert(
@@ -74,9 +73,9 @@ export default function LoginPage() {
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         editable={!isLoading}
       />
       <TextInput
