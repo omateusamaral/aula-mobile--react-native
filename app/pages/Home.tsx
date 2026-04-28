@@ -4,7 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useState } from "react";
 import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import EditUserModal from "../components/EditUserModal";
+import EditUserModal from "../../components/EditUserModal";
 
 export default function Home() {
   const [users, setUsers] = useState<User[]>([]);

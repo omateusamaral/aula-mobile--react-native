@@ -8,8 +8,8 @@ import {
 import { useEffect, useState } from "react";
 import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CreateRoleModal from "../components/CreateRoleModal";
-import EditRoleModal from "../components/EditRoleModal";
+import CreateRoleModal from "../../components/CreateRoleModal";
+import EditRoleModal from "../../components/EditRoleModal";
 
 export default function Roles() {
   const [roles, setRoles] = useState<Role[]>([]);
